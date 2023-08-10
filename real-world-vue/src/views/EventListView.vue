@@ -4,6 +4,10 @@ import EventCard from '../components/EventCard.vue'
 import type { EventItem } from '@/type';
 import axios, { type AxiosResponse } from 'axios'
 
+import { useRouter } from 'vue-router'
+
+import { onBeforeRouteUpdate } from 'vue-router';
+
 import {ref, type Ref, watchEffect, computed} from 'vue'
 const events : Ref<Array<EventItem>> = ref([])
   const totalEvent = ref<number>(0)
@@ -28,11 +32,25 @@ EventService.getEvent( eventsPerPage.value, props.page).then ((response: AxiosRe
     totalEvent.value = response.headers['x-total-count']
 })
 
-watchEffect(()=>{
-  EventService.getEvent(eventsPerPage.value, props.page).then((response: AxiosResponse<EventItem[]>) => { 
+const router = useRouter()
+
+  EventService.getEvent(2, props.page).then((response: AxiosResponse<EventItem[]>) => { 
     events.value = response.data
+    totalEvent.value = response.headers['x-total-count']
+  }).catch(() => {
+    router.push({ name: 'NetworkError'})
   })
-})
+  onBeforeRouteUpdate((to, from, next)=> {
+    const toPage = Number(to.query.page)
+
+    EventService.getEvent(2, toPage).then((response: AxiosResponse<EventItem[]>)=>{
+      events.value = response.data
+    totalEvent.value = response.headers['x-total-count']
+  }).catch(() => {
+    router.push({ name: 'NetworkError'})
+  })
+  })
+
 </script>
 
 <template>
