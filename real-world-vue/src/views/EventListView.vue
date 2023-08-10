@@ -20,7 +20,7 @@ const events : Ref<Array<EventItem>> = ref([])
   const eventsPerPage = ref(2)
   const hasNextPage = computed(()=>{
     //first calculate the total page
-    const totalPages = Math.ceil(totalEvent.value/eventsPerPage.value)
+    const totalPages = Math.ceil(totalEvent.value/3)
     return props.page.valueOf()< totalPages
   })
 axios.get<EventItem[]>('http://localhost:3004/events')
@@ -34,7 +34,7 @@ EventService.getEvent( eventsPerPage.value, props.page).then ((response: AxiosRe
 
 const router = useRouter()
 
-  EventService.getEvent(2, props.page).then((response: AxiosResponse<EventItem[]>) => { 
+  EventService.getEvent(3, props.page).then((response: AxiosResponse<EventItem[]>) => { 
     events.value = response.data
     totalEvent.value = response.headers['x-total-count']
   }).catch(() => {
@@ -43,7 +43,7 @@ const router = useRouter()
   onBeforeRouteUpdate((to, from, next)=> {
     const toPage = Number(to.query.page)
 
-    EventService.getEvent(2, toPage).then((response: AxiosResponse<EventItem[]>)=>{
+    EventService.getEvent(3, toPage).then((response: AxiosResponse<EventItem[]>)=>{
       events.value = response.data
     totalEvent.value = response.headers['x-total-count']
   }).catch(() => {
